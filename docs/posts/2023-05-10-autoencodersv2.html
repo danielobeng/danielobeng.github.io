@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.326">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Daniel">
+<meta name="dcterms.date" content="2023-05-10">
+<meta name="description" content="Part 1 in a series on Autoencoders, starting with the baics">
+
+<title>DO - A Comprehensive Guide to the Intuition, Mathematics, and Implementation of Autoencoders - Part 1</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">DO</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+    <a href="https://github.com/danielobeng" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#you-want-to-get-as-much-out-of-every-piece-of-information-as-possible" id="toc-you-want-to-get-as-much-out-of-every-piece-of-information-as-possible" class="nav-link active" data-scroll-target="#you-want-to-get-as-much-out-of-every-piece-of-information-as-possible">you want to get as much out of every piece of information as possible</a>
+  <ul class="collapse">
+  <li><a href="#motivation" id="toc-motivation" class="nav-link" data-scroll-target="#motivation">Motivation</a></li>
+  <li><a href="#running-example-setup" id="toc-running-example-setup" class="nav-link" data-scroll-target="#running-example-setup">Running Example setup</a></li>
+  <li><a href="#compression-analogy" id="toc-compression-analogy" class="nav-link" data-scroll-target="#compression-analogy">Compression analogy</a></li>
+  <li><a href="#compression-is-dimensionality-reduction" id="toc-compression-is-dimensionality-reduction" class="nav-link" data-scroll-target="#compression-is-dimensionality-reduction">Compression is dimensionality reduction</a></li>
+  <li><a href="#understanding-latent-spaces" id="toc-understanding-latent-spaces" class="nav-link" data-scroll-target="#understanding-latent-spaces">Understanding Latent spaces</a></li>
+  <li><a href="#dimensionality-reduction-reveals-latent-spaces" id="toc-dimensionality-reduction-reveals-latent-spaces" class="nav-link" data-scroll-target="#dimensionality-reduction-reveals-latent-spaces">Dimensionality reduction reveals latent spaces</a></li>
+  <li><a href="#revealing-latent-space-autoencoder" id="toc-revealing-latent-space-autoencoder" class="nav-link" data-scroll-target="#revealing-latent-space-autoencoder">Revealing latent space = autoencoder</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">A Comprehensive Guide to the Intuition, Mathematics, and Implementation of Autoencoders - Part 1</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">tutorial</div>
+    <div class="quarto-category">machine learning</div>
+    <div class="quarto-category">examples</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Part 1 in a series on Autoencoders, starting with the baics
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Daniel </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 10, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell" data-execution_count="1">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.patches <span class="im">as</span> patches</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.colors <span class="im">import</span> ListedColormap</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.lines <span class="im">import</span> Line2D</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>)</span></code></pre></div>
+</details>
+</div>
+<section id="you-want-to-get-as-much-out-of-every-piece-of-information-as-possible" class="level1">
+<h1>you want to get as much out of every piece of information as possible</h1>
+<ul>
+<li>Autoencoder Intuition</li>
+</ul>
+<section id="motivation" class="level2">
+<h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
+<p>Autoencoders, though not a novel idea in the realm of machine learning, have gained significant attention in recent years due to their powerful capabilities and versatility. With the recent rise in popularity of <a href="https://en.wikipedia.org/wiki/Diffusion_model">diffusion models</a>, an understanding of autoencoders has become foundational knowledge to those wishing to learn about the latest models.</p>
+<p>Welcome to the first post in a blog series on autoencoders, where we will break down complex concepts into simple, digestible explanations. In this post, we will mostly steer clear of intricate code and mathematical jargon, focusing instead on building your intuition around the fundamental concepts that make autoencoders so fascinating. Later posts in the series will get more technical and build on the concepts described here.</p>
+<p>Possible use cases of an autoencoder include:</p>
+<ul>
+<li>Data Compression: Utilize the encoder part of the autoencoder to reduce the size of an image file, enabling faster transfer speeds when shared with someone who possesses the corresponding decoder. Whether or not this is more useful than standard compression techniques really depends on the use case.</li>
+<li>Image reconstruction and denoising (e.g., removing graininess or watermarks), their application extends to more sophisticated models as well.</li>
+<li>Anomaly Detection: Identify unusual patterns or outliers in the data.</li>
+<li>Noise Reduction: Improve image quality by eliminating graininess, as the model learns that graininess is not an essential aspect of the image.</li>
+<li>Generative Modeling: Generate new information, such as novel images or audio, using generative models. For instance, <a href="https://arxiv.org/pdf/2112.10752.pdf">Latent Diffusion Models</a> generate images based on text prompts or deepfakes where the face of a person is generated by the model, autoencoders are a key component. These advanced applications often employ a more complex variant called <a href="https://en.wikipedia.org/wiki/Variational_autoencoder">Variational Autoencoders</a>, which we will explore in later blog posts. However, before delving into these advanced topics, it is worth investing time in understanding the fundamentals of basic autoencoders.</li>
+</ul>
+<div class="quarto-layout-panel">
+<div class="quarto-layout-row quarto-layout-valign-bottom">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../media/images/denoising_example.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Denoising Example - Original (top), original with noise(middle), de-noised reconstruction (bottom)</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../media/images/watermark_removal_example.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Watermark Removal Example - Original (top), original with watermark (middle), no watermark reconstruction (bottom)</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="quarto-layout-row quarto-layout-valign-bottom">
+<div class="quarto-layout-cell" style="flex-basis: 40.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../media/images/diffusion_proc1.gif" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Diffusion Model Image Generation (source: <a href="https://scholar.harvard.edu/binxuw/classes/machine-learning-scratch/materials/stable-diffusion-scratch">harvard.edu</a>)</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 60.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../media/images/deepfake_tom_miles.gif" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Deepfake of Tom Cruise (created by the talented <a href="https://www.youtube.com/watch?v=wq-kmFCrF5Q">Chris Ume</a>)</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>Autoencoders stand out as a unique class of neural network designed to compress input data and subsequently reconstruct it with high accuracy. This ingenious architecture consists of two interconnected neural networks working in tandem. Ultimately, connecting two neural networks together creates a single neural network, but it is useful to think of these as distinct parts when first learning how they work.</p>
+<p>The two neural networks are called the encoder and the decoder and are more or less mirror images of each other (<a href="#fig-autoencoder_schema">Figure&nbsp;4</a>). The encoder is responsible for compressing the input data into a more compact representation, while the decoder takes on the task of decompressing and reconstructing the compact representation back into the original form. Central to the success of this process is a layer of information nestled between the encoder and decoder. More on that later.</p>
+<div id="fig-autoencoder_schema" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="../media/images/Autoencoder_schema.png" class="img-fluid figure-img" width="450"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1: Diagram of a basic Autoencoder (source: <a href="https://en.wikipedia.org/wiki/Autoencoder">Wikipedia</a>)</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="running-example-setup" class="level2">
+<h2 class="anchored" data-anchor-id="running-example-setup">Running Example setup</h2>
+<p>Throughout this blog post, we use a basic autoencoder model built to compress and reconstruct images from the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset</a> as an example.</p>
+<p>The MNIST dataset (<a href="#fig-mnist_examples">Figure&nbsp;2</a>) consists of 28x28 pixel, black and white images of handwritten digits from 0 to 9. The pixel values range from 0-1 where 1=white, 0=black and any shade of grey will be a value between the two.</p>
+<div id="fig-mnist_examples" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="../media/images/mnist_examples.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2: Images from the MNIST dataset</figcaption><p></p>
+</figure>
+</div>
+<p>The goal is to use this example throughout the blog post as an anchor to which we can attach new concepts to as we learn them.</p>
+<p><a href="#fig-mnist_reconstruction_example">Figure&nbsp;3</a> shows a handwritten digit that was reconstructed by the autoencoder model we will be using. The reconstruction is (purposefully) not perfect to highlight that it is a reconstruction.</p>
+<div id="fig-mnist_reconstruction_example" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="../media/images/linear_autoencoder_reconstruction.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3: MNIST image reconstruction</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="compression-analogy" class="level2">
+<h2 class="anchored" data-anchor-id="compression-analogy">Compression analogy</h2>
+<section id="data-compression-retaining-the-core-information" class="level3">
+<h3 class="anchored" data-anchor-id="data-compression-retaining-the-core-information">Data compression: Retaining the Core Information</h3>
+<p>To fully comprehend autoencoders, it is helpful to grasp the concept of data compression. The goal of a compression algorithm is to reduce the size of some given data.</p>
+<p>The first clarification to make on compression is the following: compression of data means removing data. It is the only way to reduce the size of a file. The skill is in deciding what data to remove such that it is easy to add it back in when you decompress the data.</p>
+<p>There are 2 important ideas to compression:</p>
+<ol type="1">
+<li>The algorithms that encode and decode the data</li>
+<li>The form that the data takes when it is encoded</li>
+</ol>
+<p>Here’s an example:</p>
+<p>Imagine you are with a friend and you are tasked with manually copying strings of data from one piece of paper to another. The strings of data look like this:</p>
+<pre><code>AAARRBBBBMMMMMMMPPPEYYYYYBBBBBBBUUIIIIIIIII
+WWWAAAAAAAAAAATTTTNQQQQQQUJJNNNNNNRRRRRRRRR
+UUKLLLLLLLLFGHSSSSSSZZZZZZZZZZZZZZZZGGGGGGG
+...
+etc.</code></pre>
+<p>There are a lot of strings to copy so want to be efficient in this process. You decide for find a quicker way of passing the information to each other.</p>
+<p>You assign different roles to each other: your friend will read the strings and you will write them down. As the reader, your friend decides to use an algorithm in order to shorten the amount of data they need to pass to you. We count the number of times a letter repeats and write down that number followed by the letter.</p>
+<p>For example:</p>
+<pre><code>AAARRBBBBMMMMMMMPPPEYYYYYBBBBBBBUUIIIIIIIII</code></pre>
+<p>becomes</p>
+<pre><code>3A2R4B7M3P1E5Y7B2U9I</code></pre>
+<p>What your friend is doing is “encoding” the strings of data. This particular encoding is compressing the data into a smaller form in a way that it can be perfectly reproduced - this is called “lossless” compression. Your friend is acting as an “Encoder”.</p>
+<p>Your role is to “decode” the information back into it’s original form. You are a “Decoder”. All you need to do is know the algorithm your friend used to encode that data and do the reverse.</p>
+<p>While this is a straightforward example, why this works generalises to any situation. We can afford to reduce the amount of data because we found a more efficient way to express the same information with fewer bits (using only one number followed by one letter). There tend to be repeating sequences letters that don’t need to be repeated.</p>
+<p>insert image of tranfer of infor from data to algorithm?</p>
+<p>How did we find this encoding-decoding technique? As humans, we have a lot of pre-existing knowledge and can spot simple patterns like this which we can use to design our algorithms. We can tell it would be more efficient to use a single letter and number If the sequence had been single letter sequences (eg <code>AEJGOSKA</code>), we know that this method would have been less efficient as we would need twice as much information (<code>1A1E1J1G1O1S1K1A</code>).</p>
+<p>To compress and decompress data, the algorithm must possess an adequate understanding of the rules of redundancy in the given data.</p>
+<p>In most real-world scenarios, there is significantly more data involved, and the relationships are not as easily discernible by a human, leading to more complex algorithms with more intricate pre-existing knowledge.</p>
+<p>Earlier, we mentioned “lossless” compression. When the reconstruction is not perfect, we call this “lossy” compression. The <code>jpeg</code> file format for images is an example of a lossy compressed format. It makes the image size smaller at the detrement of losing some image quality.</p>
+<p>While this example used letters as the from of the data, given all things on computers are numbers, compression will work with anything; images, audio, video, text etc.</p>
+</section>
+<section id="autoencoder-compression-with-mnist-example" class="level3">
+<h3 class="anchored" data-anchor-id="autoencoder-compression-with-mnist-example">Autoencoder Compression with MNIST example</h3>
+<p>Autoencoders work differently than general compression algorithms:</p>
+<ul>
+<li>The algorithm is not designed by humans: autoencoders are neural networks, and the compression and decompression algorithm is developed by the network itself. While humans do have some input in determining hpw far to reduce the dimensionality of the data, the network must figure out how to make that work. This is where the “auto” in “autoencoder” comes from.</li>
+<li>The algorithm is task-specific: autoencoders are trained on specific data and learn to compress data that is similar in nature. They can excel at compressing particular types of data, but they do not generalize beyond the data provided. If they are only fed images of cars, they won’t compress images of flowers effectively. However, if given both images of cars and flowers, they could handle both.</li>
+</ul>
+<p>Let’s look at the architechture of our image autoencoder (<a href="#fig-autoencoder_schema">Figure&nbsp;4</a>). Notice there are 2 parts: an encoder at the input that compresses data <code>X</code> into <code>h</code> and a decoder at the output that attempts to reconstruct <code>X</code> using only <code>h</code> to produce <code>X'</code>. Both the encoder and decoder overlap in the middle - this middle layer is the the output of the encoder and contains the compressed form of the original image.</p>
+<div id="fig-autoencoder_schema" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="../media/images/Autoencoder_schema.png" class="img-fluid figure-img" width="450"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4: Diagram of a basic Autoencoder (source: <a href="https://en.wikipedia.org/wiki/Autoencoder">Wikipedia</a>)</figcaption><p></p>
+</figure>
+</div>
+<p>Our specific autoencoder has been designed to compress any 28x28 pixel image into 2 values (<a href="#fig-compressed_image_form">Figure&nbsp;5</a>). This means we are going from <code>28x28=784</code> values down to 2, so this is a significant reduction. Notice how we have a negative value for one of the pixels - these numbers longer represent pixel values in the same way.</p>
+<div id="fig-compressed_image_form" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="../media/images/2d_latent_compressed_form.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5: Example compressed image to only 2 values</figcaption><p></p>
+</figure>
+</div>
+<p>We say that the compressed form of the image is 2-dimensional.</p>
+</section>
+</section>
+<section id="compression-is-dimensionality-reduction" class="level2">
+<h2 class="anchored" data-anchor-id="compression-is-dimensionality-reduction">Compression is dimensionality reduction</h2>
+<p>What does it mean for the compressed representations to be lower-dimensional?</p>
+<p>All this means is we reduce the number of categories (or features) of our data. In the case of an image, it means fewer pixel values.</p>
+<p>The MNIST images (<a href="#fig-mnist_examples">Figure&nbsp;2</a>) are visualised in a 28x28 pixel grid. If we flatten out the image, we have <code>28x28=784</code> features, as each pixel is required to draw the digit. 784 pixels can be thought of as the dimension size of the data. The first dimension represents the pixel value in the top left corner, 784th pixel represents the bottom right most pixel.</p>
+<p><a href="#fig-orig_v_flattened">Figure&nbsp;6</a> shows a 50 pixel section of a flattened out MNIST image. The highlighted purple pixels are there to reference pixel position between the unflattened and flattend images.</p>
+<p>When the pixels are plotted, they are treated independently of each other. We go through each value, one by one and assign the correct colour to that value regardless of the values of other pixels. However, in any image, pixels are not independent of each other. We would not be able to compare two different hand written digits of a “4” and know they represented the same number. The only cases where the pixels are independent is in the case of random noise. This dependence between pixels is the property we exploit to reduce the dimensionality of the image.</p>
+<div id="fig-orig_v_flattened" class="quarto-layout-panel">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-bottom">
+<div class="quarto-layout-cell" style="flex-basis: 60.0%;justify-content: center;">
+<p><img src="../media/images/linear_autoencoder_reconstruction_2d_latent_orig.jpg" class="img-fluid figure-img" alt="Alt text"> <img src="../media/images/linear_autoencoder_orig_2d_latent_flat.png" height="400" alt="Alt text" class="figure-img"></p>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;6: <strong>?(caption)</strong></figcaption><p></p>
+</figure>
+</div>
+<p>Let’s examine the code that defines our autoencoder’s architechture to understand how it reduces the dimensionality of the data. The code below uses the <a href="https://pytorch.org">Pytorch</a> library to define the model layers.</p>
+<p>The important lines of code involve the <code>Linear()</code> function (a <a href="https://pytorch.org/docs/stable/generated/torch.nn.Linear.html">linear layer</a>), which essentially takes us from a dimension of size <span class="math inline">\(a\)</span> to a dimension of size <span class="math inline">\(b\)</span> via <code>Linear(a,b)</code>.</p>
+<p>We will not discuss the maths behind the <code>Linear()</code> function here as it is unnecessary for a first pass at understanding autoencoders.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>         <span class="va">self</span>.encoder <span class="op">=</span> torch.nn.Sequential(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>            Linear(<span class="dv">28</span> <span class="op">*</span> <span class="dv">28</span>, <span class="dv">128</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ReLU(),</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>            Linear(<span class="dv">128</span>, <span class="dv">64</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ReLU(),</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>            Linear(<span class="dv">64</span>, <span class="dv">32</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ReLU(),</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>            Linear(<span class="dv">32</span>, <span class="dv">2</span>),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>         <span class="va">self</span>.decoder <span class="op">=</span> torch.nn.Sequential(</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>            Linear(<span class="dv">2</span>, <span class="dv">32</span>),</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ReLU(),</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>            Linear(<span class="dv">32</span>, <span class="dv">64</span>),</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ReLU(),</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            Linear(<span class="dv">64</span>, <span class="dv">128</span>),</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ReLU(),</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>            Linear(<span class="dv">128</span>, <span class="dv">28</span> <span class="op">*</span> <span class="dv">28</span>),</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Sigmoid(),</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>         )</span></code></pre></div>
+<p>This architecture follows the same basic design as <a href="#fig-autoencoder_schema">Figure&nbsp;4</a> shows. The encoder part of the model (<code>self.encoder</code>) reduces the data’s dimension through these linear layers, little by little: <code>28*28 -&gt; 128 -&gt; 64 -&gt; 32 -&gt; 2</code>. The compressed representation ends up being 2 pixels wide (2-dimensional) after the final <code>Linear</code> function <code>Linear(32, 2)</code>.</p>
+<p>The decoder (<code>self.decoder</code>) defines the same process as the encoder, but in reverse: linear layers go from smallest dimension (the middle layer) back to the original dimension of the image: 2 -&gt; 32 -&gt; 64 -&gt; 128 -&gt; 28*28. This is where the image reconstruction happens.</p>
+<p>How is 2 pixels worth of information enough to reconstruct an image back to 784 pixels? First, the two values we are left with are not longer independent, meaning any combination of values means more than just Second, the reconstruction is lossy, so we are allowing for errors in the reconstruction to allow for a smaller size compressed image. Third and most importantly, the “prior experience” contains a lot of the information needed for the reconstruction. It is held in the model’s weights. The combination of the functions used to reduce the dimensionality of the data and their weights define a the new lower dimensional space - it is called the <strong>latent space</strong>.</p>
+</section>
+<section id="understanding-latent-spaces" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-latent-spaces">Understanding Latent spaces</h2>
+<p>If we can reconstruct the data from a compressed representation, then the important information must still exist in that lower dimensional state.</p>
+<p>The autoencoder must have learned something valuable about the “world” in which the data lives and stored that knowledge within the weights of the neural network that define the middle layer. That knowledge lies in what is known as the <strong>latent space</strong>.</p>
+<p>The term “latent” refers to something that is present but hidden. In this context, compressed representations consisting of fewer dimensions already exist, it is just not obvious from the point of view of the higher dimensional space how to find them.</p>
+<p>Consider the plot of random points in <a href="#fig-3d_random_points">Figure&nbsp;7</a>. To describe any single point, we need 3 pieces of information - the x coordinate, the y coordinate, and the z coordinate. If the data is random, there is no correlation between x, y, and z. In other words, changing x does not affect y or z and vice versa. We say the data spans a 3-dimensional space. There are no latent spaces.</p>
+<div class="cell" data-execution_count="2">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>num_points <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">6</span> <span class="op">*</span> np.random.randn(num_points)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="dv">6</span> <span class="op">*</span> np.random.randn(num_points)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> <span class="dv">6</span> <span class="op">*</span> np.random.randn(num_points)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(<span class="dv">111</span>, projection<span class="op">=</span><span class="st">'3d'</span>, facecolor<span class="op">=</span><span class="st">'white'</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>ax.scatter(x, y, z, c<span class="op">=</span><span class="st">'r'</span>, marker<span class="op">=</span><span class="st">'o'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, s<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'X'</span>, labelpad<span class="op">=-</span><span class="dv">10</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Y'</span>, labelpad<span class="op">=-</span><span class="dv">10</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>ax.set_zlabel(<span class="st">'Z'</span>, labelpad<span class="op">=-</span><span class="dv">10</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">False</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>ax.set_zlim(<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>ax.xaxis._axinfo[<span class="st">'juggled'</span>] <span class="op">=</span> (<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>ax.yaxis._axinfo[<span class="st">'juggled'</span>] <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>ax.zaxis._axinfo[<span class="st">'juggled'</span>] <span class="op">=</span> (<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>ax.set_xticks([])</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>ax.set_yticks([])</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>ax.set_zticks([])</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>ax.plot([<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>], [<span class="dv">0</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="dv">0</span>], color<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>ax.plot([<span class="dv">0</span>, <span class="dv">0</span>], [<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>], [<span class="dv">0</span>, <span class="dv">0</span>], color<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>ax.plot([<span class="dv">0</span>, <span class="dv">0</span>], [<span class="dv">0</span>, <span class="dv">0</span>], [<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>], color<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>ax.xaxis.pane.fill <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>ax.yaxis.pane.fill <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>ax.zaxis.pane.fill <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-3d_random_points" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="2023-05-10-autoencodersv2_files/figure-html/fig-3d_random_points-output-1.png" width="463" height="463" class="figure-img"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;7: 3D plot of random points</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Now let’s say x, y and z represent real world features: physical human traits.</p>
+<ul>
+<li><code>x = age</code></li>
+<li><code>y = height</code></li>
+<li><code>z = weight</code></li>
+</ul>
+<p>The data would no longer be random. There are relationships between age,height, and weight. Additionally, some combinations of age, height and weight never occur in reality. You’ll be hard-pressed to find a 300 kg 4-year-old measuring 50 cm tall. So, if we have good sources of data, the model will also tend to believe such combinations are not possible. There are underlying physiological rules defining the relationship. Those rules define a latent space.</p>
+<p>Conversely, given two of these values, we can make an approximate guess at the third. If we can do that, then there likely exists a smaller dimensional space in which our data also resides, one that does not require all the features. If done correctly, it might only take 1 or 2 coordinates to describe any human by these traits.</p>
+<p>The goal is to discover a structure that serves as our new coordinate system, allowing navigation with just two coordinates. Autoencoders, particularly the encoder portion, accomplish this by seeking a lower-dimensional latent space. The autoencoder’s middle layer asserts the existence of a latent space of size <span class="math inline">\(w\)</span> and compels the network to find such a representation. Lacking this constraint, the middle layer would remain in its original high-dimensional space, merely copying the input and functioning as an identity transformation (multiplying everything by 1).</p>
+<p><a href="#fig-height_weight_age">Figure&nbsp;8</a> demonstrates that the majority of points lie on or near a 2D latent space. By projecting these points onto the blue grid as close to their original positions as possible, we can create a 2-dimensional visualization. What the axes represent is no longer as simple as height, weight or age, but some combination of all of them. Due to this projection, the points won’t precisely match their original locations, but they will be close. This process is analogous to the slightly blurred, imperfect image reconstruction from earlier on.</p>
+<div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mpl_toolkits.mplot3d <span class="im">import</span> Axes3D</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.decomposition <span class="im">import</span> PCA</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_data(num_points):</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    age <span class="op">=</span> np.random.randint(low<span class="op">=</span><span class="dv">1</span>, high<span class="op">=</span><span class="dv">100</span>, size<span class="op">=</span>num_points)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    height <span class="op">=</span> np.zeros(num_points)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, a <span class="kw">in</span> <span class="bu">enumerate</span>(age):</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        base_height <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        growth_factor <span class="op">=</span> <span class="dv">6</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> a <span class="op">&lt;=</span> <span class="dv">20</span>:</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>            growth_rate <span class="op">=</span> a <span class="op">/</span> <span class="fl">4.0</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>            height[i] <span class="op">=</span> base_height <span class="op">+</span> a <span class="op">*</span> growth_factor  <span class="op">+</span> np.random.normal(loc<span class="op">=</span><span class="dv">0</span>, scale<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            max_height <span class="op">=</span> base_height <span class="op">+</span> <span class="dv">20</span> <span class="op">*</span> growth_factor</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>            height[i] <span class="op">=</span> max_height <span class="op">+</span> np.random.normal(loc<span class="op">=</span><span class="dv">0</span>, scale<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    weight <span class="op">=</span> height <span class="op">*</span> <span class="fl">0.5</span> <span class="op">+</span> <span class="fl">1.2</span> <span class="op">*</span> np.random.normal(loc<span class="op">=</span><span class="dv">0</span>, scale<span class="op">=</span><span class="dv">10</span>, size<span class="op">=</span>num_points)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> np.column_stack((age, height, weight))</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> data</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> generate_data(<span class="dv">500</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA(n_components<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>latent_space <span class="op">=</span> pca.fit_transform(data)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>grid_size <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>x_grid, y_grid <span class="op">=</span> np.meshgrid(np.linspace(latent_space[:, <span class="dv">0</span>].<span class="bu">min</span>(), latent_space[:, <span class="dv">0</span>].<span class="bu">max</span>(), grid_size),</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>                             np.linspace(latent_space[:, <span class="dv">1</span>].<span class="bu">min</span>(), latent_space[:, <span class="dv">1</span>].<span class="bu">max</span>(), grid_size))</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>latent_grid <span class="op">=</span> np.column_stack((x_grid.ravel(), y_grid.ravel()))</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>projected_grid <span class="op">=</span> pca.inverse_transform(latent_grid)</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>age_grid, height_grid, weight_grid <span class="op">=</span> projected_grid[:, <span class="dv">0</span>].reshape(grid_size, grid_size), projected_grid[:, <span class="dv">1</span>].reshape(grid_size, grid_size), projected_grid[:, <span class="dv">2</span>].reshape(grid_size, grid_size)</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure()</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(<span class="dv">111</span>, projection<span class="op">=</span><span class="st">'3d'</span>)</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>ax.scatter(data[:,<span class="dv">0</span>], data[:,<span class="dv">1</span>], data[:,<span class="dv">2</span>], c<span class="op">=</span><span class="st">'r'</span>, marker<span class="op">=</span><span class="st">'o'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, s<span class="op">=</span><span class="dv">5</span>, label<span class="op">=</span><span class="st">'Original Data'</span>)</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>ax.plot_surface(age_grid, height_grid, weight_grid, alpha<span class="op">=</span><span class="fl">0.2</span>, color<span class="op">=</span><span class="st">'blue'</span>, linewidth<span class="op">=</span><span class="dv">0</span>, antialiased<span class="op">=</span><span class="va">False</span>, label<span class="op">=</span><span class="st">'Latent Space'</span>)</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Age'</span>, labelpad<span class="op">=-</span><span class="dv">5</span>)</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Height'</span>, labelpad<span class="op">=-</span><span class="dv">5</span>)</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>ax.set_zlabel(<span class="st">'Weight'</span>, labelpad<span class="op">=-</span><span class="dv">10</span>)</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>ax.set_xticklabels([])</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>ax.set_yticklabels([])</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>ax.set_zticklabels([])</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>,<span class="dv">5</span>))</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>ax.scatter(<span class="op">-</span>latent_space[:, <span class="dv">0</span>], <span class="op">-</span>latent_space[:, <span class="dv">1</span>], c<span class="op">=</span><span class="st">'r'</span>, marker<span class="op">=</span><span class="st">'o'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, s<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>x_min, x_max <span class="op">=</span> latent_space[:, <span class="dv">0</span>].<span class="bu">min</span>(), latent_space[:, <span class="dv">0</span>].<span class="bu">max</span>()</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>y_min, y_max <span class="op">=</span> latent_space[:, <span class="dv">1</span>].<span class="bu">min</span>(), latent_space[:, <span class="dv">1</span>].<span class="bu">max</span>()</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>margin <span class="op">=</span> <span class="fl">0.1</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>x_range <span class="op">=</span> x_max <span class="op">-</span> x_min</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>y_range <span class="op">=</span> y_max <span class="op">-</span> y_min</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>x_grid, y_grid <span class="op">=</span> np.meshgrid(np.linspace(x_min <span class="op">-</span> margin <span class="op">*</span> x_range, x_max <span class="op">+</span> margin <span class="op">*</span> x_range, <span class="dv">30</span>),</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>                             np.linspace(y_min <span class="op">-</span> margin <span class="op">*</span> y_range, y_max <span class="op">+</span> margin <span class="op">*</span> y_range, <span class="dv">30</span>))</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(x_grid.shape[<span class="dv">0</span>]):</span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>    ax.plot(<span class="op">-</span>x_grid[i, :], <span class="op">-</span>y_grid[i, :], c<span class="op">=</span><span class="st">'blue'</span>, alpha<span class="op">=</span><span class="fl">0.2</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>    ax.plot(<span class="op">-</span>x_grid[:, i], <span class="op">-</span>y_grid[:, i], c<span class="op">=</span><span class="st">'blue'</span>, alpha<span class="op">=</span><span class="fl">0.2</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Latent Space Axis 1'</span>)</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Latent Space Axis 2'</span>)</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>ax.set_xticklabels([])</span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>ax.set_yticklabels([])</span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+</details>
+<div id="fig-height_weight_age" class="cell quarto-layout-panel" data-freeze="true" data-execution_count="3">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-bottom">
+<div class="cell-output cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-height_weight_age-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="2023-05-10-autoencodersv2_files/figure-html/fig-height_weight_age-output-1.png" class="img-fluid figure-img" data-ref-parent="fig-height_weight_age" width="396"></p>
+<p></p><figcaption class="figure-caption">(a) Height vs Weight vs Age with Latent Space Overlay</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-height_weight_age-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="2023-05-10-autoencodersv2_files/figure-html/fig-height_weight_age-output-2.png" class="img-fluid figure-img" data-ref-parent="fig-height_weight_age" width="493"></p>
+<p></p><figcaption class="figure-caption">(b) Same data as (a) Projected onto Latent Space</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;8: Visualisation of a Latent Space for height, weight and age in a population</figcaption><p></p>
+</figure>
+</div>
+</div>
+<p>Latent spaces will not be so easy to visualise when it comes to complex data, and won’t be a flat plane. This is why we might want the autoencoder to figure out the shape for us.</p>
+</section>
+<section id="dimensionality-reduction-reveals-latent-spaces" class="level2">
+<h2 class="anchored" data-anchor-id="dimensionality-reduction-reveals-latent-spaces">Dimensionality reduction reveals latent spaces</h2>
+<p>When data is cleverly compressed, the reduced dimension space is a latent space and autoencoders can find these latent spaces for us.</p>
+<p>When an image is processed through our autoencoder model we can halt the process when it reaches the middle layer to obtain the 2-dimensional latent space representation of the image. Given there are only 2 dimensions, we end up with 2 coordinates.</p>
+<div id="fig-autoencoder_sliced" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="../media/images/Autoencoder_schema_with_example_2d_latent_sliced.png" class="img-fluid figure-img" width="450"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;9: Autoencoder Diagram with Decoder Removed</figcaption><p></p>
+</figure>
+</div>
+<p>After running multiple images through the encoder, we can visualise the latent space by plotting the 2D coordinates of these images (<a href="#fig-tsne_mnist">Figure&nbsp;10</a>). This is the same idea as when we projected the age, height, width data onto a 2D latent space in <a href="#fig-height_weight_age">Figure&nbsp;8</a>. It gives us an idea of what the latent space looks like, like sprinkling dust (i.e.&nbsp;the images) on an invisible landscape to see the topology.</p>
+<div class="cell" data-execution_count="4">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torchvision</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torchvision.datasets <span class="im">as</span> datasets</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.manifold <span class="im">import</span> TSNE</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchvision <span class="im">import</span> transforms</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tqdm <span class="im">import</span> tqdm</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>train_ds <span class="op">=</span> torchvision.datasets.MNIST(</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"../data"</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    train<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    download<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    transform<span class="op">=</span>torchvision.transforms.Compose(</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        [</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>            torchvision.transforms.ToTensor(),</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>test_ds <span class="op">=</span> torchvision.datasets.MNIST(</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"../data"</span>,</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    train<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    download<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    transform<span class="op">=</span>torchvision.transforms.Compose(</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        [</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>            torchvision.transforms.ToTensor(),</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">128</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(dataset<span class="op">=</span>train_ds, batch_size<span class="op">=</span>batch_size, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>test_loader <span class="op">=</span> DataLoader(dataset<span class="op">=</span>test_ds, batch_size<span class="op">=</span>batch_size, shuffle<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AutoEncoder(torch.nn.Module):</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.encoder <span class="op">=</span> torch.nn.Sequential(</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>            torch.nn.Linear(<span class="dv">28</span> <span class="op">*</span> <span class="dv">28</span>, <span class="dv">128</span>),</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>            torch.nn.ReLU(),</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>            torch.nn.Linear(<span class="dv">128</span>, <span class="dv">64</span>),</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>            torch.nn.ReLU(),</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>            torch.nn.Linear(<span class="dv">64</span>, <span class="dv">32</span>),</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>            torch.nn.ReLU(),</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>            torch.nn.Linear(<span class="dv">32</span>, <span class="dv">2</span>),</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.decoder <span class="op">=</span> torch.nn.Sequential(</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>            torch.nn.Linear(<span class="dv">2</span>, <span class="dv">32</span>),</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>            torch.nn.ReLU(),</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>            torch.nn.Linear(<span class="dv">32</span>, <span class="dv">64</span>),</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>            torch.nn.ReLU(),</span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>            torch.nn.Linear(<span class="dv">64</span>, <span class="dv">128</span>),</span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>            torch.nn.ReLU(),</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>            torch.nn.Linear(<span class="dv">128</span>, <span class="dv">28</span> <span class="op">*</span> <span class="dv">28</span>),</span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>            torch.nn.Sigmoid(),</span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>        enc <span class="op">=</span> <span class="va">self</span>.encoder(x)</span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>        dec <span class="op">=</span> <span class="va">self</span>.decoder(enc)</span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dec</span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span>)</span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoEncoder()</span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>model_c <span class="op">=</span> torch.<span class="bu">compile</span>(model)</span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>model_c.to(device)</span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>loss_f <span class="op">=</span> torch.nn.MSELoss()</span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">2e-3</span>)</span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a>epochs <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> []</span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a>losses <span class="op">=</span> []</span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a>torch._dynamo.config.suppress_errors <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train_model():</span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a>    model_c.train()</span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> tqdm(<span class="bu">range</span>(epochs)):</span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> img, _ <span class="kw">in</span> train_loader:</span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a>            img <span class="op">=</span> img.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">28</span> <span class="op">*</span> <span class="dv">28</span>).to(device)</span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a>            reconstructed <span class="op">=</span> model_c(img)</span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> loss_f(reconstructed, img)</span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a>            opt.zero_grad()</span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a>            opt.step()</span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a>            losses.append(loss.item())</span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Loss: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a>        out.append((epoch, img, reconstructed))</span>
+<span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a>model_name <span class="op">=</span> <span class="st">"model_weights12-2dim.pt"</span></span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> Path(model_name).exists():</span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a>    model.load_state_dict(torch.load(model_name))</span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a>    train_model()</span>
+<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a>    torch.save(model.state_dict(), model_name)</span>
+<span id="cb8-113"><a href="#cb8-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-114"><a href="#cb8-114" aria-hidden="true" tabindex="-1"></a>encoded_data <span class="op">=</span> []</span>
+<span id="cb8-115"><a href="#cb8-115" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> []</span>
+<span id="cb8-116"><a href="#cb8-116" aria-hidden="true" tabindex="-1"></a>original_images <span class="op">=</span> []</span>
+<span id="cb8-117"><a href="#cb8-117" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-118"><a href="#cb8-118" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (img, label) <span class="kw">in</span> tqdm(<span class="bu">enumerate</span>(test_loader)):</span>
+<span id="cb8-119"><a href="#cb8-119" aria-hidden="true" tabindex="-1"></a>    c <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb8-120"><a href="#cb8-120" aria-hidden="true" tabindex="-1"></a>    img_flat <span class="op">=</span> img.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">28</span> <span class="op">*</span> <span class="dv">28</span>)</span>
+<span id="cb8-121"><a href="#cb8-121" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> model.encoder(img_flat)</span>
+<span id="cb8-122"><a href="#cb8-122" aria-hidden="true" tabindex="-1"></a>    encoded_data.extend(out.detach().cpu().numpy())</span>
+<span id="cb8-123"><a href="#cb8-123" aria-hidden="true" tabindex="-1"></a>    labels.extend(label.numpy())</span>
+<span id="cb8-124"><a href="#cb8-124" aria-hidden="true" tabindex="-1"></a>    original_images.extend(img_flat.cpu().numpy())</span>
+<span id="cb8-125"><a href="#cb8-125" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> c <span class="op">&gt;</span> <span class="dv">4</span>:</span>
+<span id="cb8-126"><a href="#cb8-126" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb8-127"><a href="#cb8-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-128"><a href="#cb8-128" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb8-129"><a href="#cb8-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-130"><a href="#cb8-130" aria-hidden="true" tabindex="-1"></a>image_size <span class="op">=</span> <span class="dv">28</span></span>
+<span id="cb8-131"><a href="#cb8-131" aria-hidden="true" tabindex="-1"></a>padding <span class="op">=</span> <span class="fl">0.03</span></span>
+<span id="cb8-132"><a href="#cb8-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-133"><a href="#cb8-133" aria-hidden="true" tabindex="-1"></a>encoded_data <span class="op">=</span> np.array(encoded_data)</span>
+<span id="cb8-134"><a href="#cb8-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-135"><a href="#cb8-135" aria-hidden="true" tabindex="-1"></a>x_min, x_max <span class="op">=</span> np.<span class="bu">min</span>(encoded_data[:, <span class="dv">0</span>]), np.<span class="bu">max</span>(encoded_data[:, <span class="dv">0</span>])</span>
+<span id="cb8-136"><a href="#cb8-136" aria-hidden="true" tabindex="-1"></a>y_min, y_max <span class="op">=</span> np.<span class="bu">min</span>(encoded_data[:, <span class="dv">1</span>]), np.<span class="bu">max</span>(encoded_data[:, <span class="dv">1</span>])</span>
+<span id="cb8-137"><a href="#cb8-137" aria-hidden="true" tabindex="-1"></a>x_range <span class="op">=</span> x_max <span class="op">-</span> x_min</span>
+<span id="cb8-138"><a href="#cb8-138" aria-hidden="true" tabindex="-1"></a>y_range <span class="op">=</span> y_max <span class="op">-</span> y_min</span>
+<span id="cb8-139"><a href="#cb8-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-140"><a href="#cb8-140" aria-hidden="true" tabindex="-1"></a>shift_x <span class="op">=</span> padding <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb8-141"><a href="#cb8-141" aria-hidden="true" tabindex="-1"></a>shift_y <span class="op">=</span> padding <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a>man_shift <span class="op">=</span> <span class="fl">0.1</span> </span>
+<span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-144"><a href="#cb8-144" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> idx, (x, y) <span class="kw">in</span> <span class="bu">enumerate</span>(encoded_data):</span>
+<span id="cb8-145"><a href="#cb8-145" aria-hidden="true" tabindex="-1"></a>    x_pos <span class="op">=</span> (x <span class="op">-</span> x_min) <span class="op">/</span> x_range <span class="op">-</span> shift_x <span class="op">-</span> man_shift</span>
+<span id="cb8-146"><a href="#cb8-146" aria-hidden="true" tabindex="-1"></a>    y_pos <span class="op">=</span> (y <span class="op">-</span> y_min) <span class="op">/</span> y_range <span class="op">-</span> shift_y</span>
+<span id="cb8-147"><a href="#cb8-147" aria-hidden="true" tabindex="-1"></a>    image <span class="op">=</span> original_images[idx].reshape(<span class="dv">28</span>, <span class="dv">28</span>)</span>
+<span id="cb8-148"><a href="#cb8-148" aria-hidden="true" tabindex="-1"></a>    ab <span class="op">=</span> plt.Axes(fig, [x_pos, y_pos, padding, padding], frame_on<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-149"><a href="#cb8-149" aria-hidden="true" tabindex="-1"></a>    ab.set_axis_off()</span>
+<span id="cb8-150"><a href="#cb8-150" aria-hidden="true" tabindex="-1"></a>    fig.add_axes(ab)</span>
+<span id="cb8-151"><a href="#cb8-151" aria-hidden="true" tabindex="-1"></a>    ab.imshow(image, cmap<span class="op">=</span><span class="st">"gray_r"</span>)</span>
+<span id="cb8-152"><a href="#cb8-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-153"><a href="#cb8-153" aria-hidden="true" tabindex="-1"></a>ax.set_xticks([])</span>
+<span id="cb8-154"><a href="#cb8-154" aria-hidden="true" tabindex="-1"></a>ax.set_yticks([])</span>
+<span id="cb8-155"><a href="#cb8-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-156"><a href="#cb8-156" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+</details>
+</div>
+<div id="fig-tsne_mnist" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="../media/images/mnist_2D_rep.png" class="img-fluid figure-img" width="450"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;10: 2D Representation of latent dimension with original data projected onto it (source: Open code cell above for the code used to create this plot)</figcaption><p></p>
+</figure>
+</div>
+<p>Observe how similar-looking digits cluster together, signifying that the model’s middle layer can discern the resemblance between different digits.</p>
+</section>
+<section id="revealing-latent-space-autoencoder" class="level2">
+<h2 class="anchored" data-anchor-id="revealing-latent-space-autoencoder">Revealing latent space = autoencoder</h2>
+<p>Latent space = middle layer of autoencoder, this is what we want to construct</p>
+<p>Let’s create a new model with a higher dimensional latent space redo example with larger latent space to show better</p>
+<section id="unleashing-the-power-of-the-middle-layer" class="level3">
+<h3 class="anchored" data-anchor-id="unleashing-the-power-of-the-middle-layer">Unleashing the Power of the Middle Layer</h3>
+<p>The primary objective of an autoencoder extends beyond merely inputting an image and obtaining a reconstructed version. The true power of autoencoders lies in leveraging the information-rich middle layer in conjunction with a specific task, thereby enhancing the performance of machine learning models. Achieving accurate reconstruction of original data serves as an effective metric for monitoring how well autoencoder model has compressed information because the better it does this, the better the reconstruction. It helps in gauging the model’s ability to capture and represent the essential features of the input data.</p>
+</section>
+<section id="more-context-on-compression" class="level3">
+<h3 class="anchored" data-anchor-id="more-context-on-compression">More context on compression</h3>
+<p>When dealing with more complex data, such as an image containing a greater number of bits, the design of the algorithm must be more sophisticated. However, the main principle remains the same: devise ways to represent a certain number of bits with fewer bits, which necessitates understanding the essential relationships between those bits of information.</p>
+<p>Not all compression algorithms perform equally. Some algorithms allow you to perfectly replicate the original information, referred to as “lossless” compression. Conversely, when the information cannot be replicated flawlessly, it is called “lossy” compression. The <code>jpeg</code> image format, for instance, employs a lossy algorithm. <code>jpeg</code> files are small due to an algorithm working behind the scenes. In general, lossy algorithms can compress more data than lossless ones.</p>
+<p>Your choice between the two depends on your specific needs. For an image, a lossy compression may suffice if you only need it to be clear enough to read a document. However, an audiophile seeking a perfect reproduction of their favorite song would likely opt for lossless compression.</p>
+<p>An autoencoders’ ability to learn essential features from the input data holds significant value. This knowledge becomes highly beneficial when applied to more sophisticated and engaging machine learning challenges.</p>
+<p>In Part 2, we will delve into implementation of autoencoder-based models to put the concepts discussed here into a full example.</p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">Copyright 2023 | Daniel Obeng</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/danielobeng">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+</body></html>
