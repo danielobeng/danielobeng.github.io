@@ -147,7 +147,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#you-want-to-get-as-much-out-of-every-piece-of-information-as-possible" id="toc-you-want-to-get-as-much-out-of-every-piece-of-information-as-possible" class="nav-link active" data-scroll-target="#you-want-to-get-as-much-out-of-every-piece-of-information-as-possible">you want to get as much out of every piece of information as possible</a>
   <ul class="collapse">
   <li><a href="#motivation" id="toc-motivation" class="nav-link" data-scroll-target="#motivation">Motivation</a></li>
-  <li><a href="#running-example-setup" id="toc-running-example-setup" class="nav-link" data-scroll-target="#running-example-setup">Running Example setup</a></li>
+  <li><a href="#an-autoencoder-example" id="toc-an-autoencoder-example" class="nav-link" data-scroll-target="#an-autoencoder-example">An Autoencoder Example</a></li>
   <li><a href="#data-compression-retaining-the-core-information" id="toc-data-compression-retaining-the-core-information" class="nav-link" data-scroll-target="#data-compression-retaining-the-core-information">Data compression: Retaining the Core Information</a></li>
   <li><a href="#compression-is-dimensionality-reduction" id="toc-compression-is-dimensionality-reduction" class="nav-link" data-scroll-target="#compression-is-dimensionality-reduction">Compression is dimensionality reduction</a></li>
   <li><a href="#understanding-latent-spaces" id="toc-understanding-latent-spaces" class="nav-link" data-scroll-target="#understanding-latent-spaces">Understanding Latent spaces</a></li>
@@ -216,11 +216,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="motivation" class="level2">
 <h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
 <p>Autoencoders, while not novel in machine learning, have seen a significant upswing in recent years due to their powerful capabilities and adaptability. In the current landscape of advancing models like <a href="https://en.wikipedia.org/wiki/Diffusion_model">diffusion models</a>, comprehension of autoencoders has become a bedrock for those wanting to learn about the latest models.</p>
-<p>Welcome to the initial entry in our blog series on autoencoders, where we aim to translate complex concepts into simple, easy-to-understand explanations. We will largely avoid complex code and mathematical jargon in this post, focusing instead on nurturing your intuition around the core concepts that make autoencoders so fascinating. Subsequent entries will become more technical, building upon the ideas established here.</p>
-<section id="understanding-autoencoders-and-their-structure" class="level3">
-<h3 class="anchored" data-anchor-id="understanding-autoencoders-and-their-structure">Understanding Autoencoders and Their Structure</h3>
-<p>Autoencoders represent a distinct category of neural networks designed to condense input data and subsequently reconstruct it with high precision. This clever design includes two interconnected neural networks working collaboratively. Though the connection of two neural networks essentially forms a single network, viewing these as separate units is beneficial when first learning about their functionality.</p>
-<p>The encoder and the decoder, nearly mirrored entities, make up these two neural networks. The encoder’s task is to compress the input data into a compact form, while the decoder undertakes the decompression and reconstruction of this compressed data back to its original shape. A layer of information sitting between the encoder and decoder proves crucial to this process, a topic we’ll explore further down the line.</p>
+<p>Welcome to the initial entry in a blog series on autoencoders, where the aim is to translate complex concepts into simple, easy-to-understand explanations. We will largely avoid complex code and mathematical jargon in this post, focusing instead on nurturing your intuition around the core concepts that make autoencoders so fascinating. Subsequent entries will become more technical, building upon the ideas established here.</p>
+<section id="autoencoders-structure" class="level3">
+<h3 class="anchored" data-anchor-id="autoencoders-structure">Autoencoders Structure</h3>
+<p>Autoencoders represent a distinct category of neural networks, designed to condense input data and subsequently reconstruct it with high accuracy. This clever design includes two interconnected networks working collaboratively. Though the connection of two networks essentially forms a single network, viewing these as separate units is beneficial when first learning about their functionality.</p>
+<p>The encoder and the decoder, nearly mirrored entities, make up these two units. The encoder’s task is to compress the input data into a compact form, while the decoder undertakes the decompression and reconstruction of this compressed data back to its original shape. The central layer sitting between the encoder and decoder will be an important aspect of the network to understand.</p>
 <div id="fig-autoencoder_schema" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="../media/images/Autoencoder_schema.png" class="img-fluid figure-img" width="450"></p>
@@ -233,7 +233,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Autoencoders find utility in a wide range of applications such as:</p>
 <ul>
 <li><p>Data Compression: The encoder of an autoencoder can compress an image file size, leading to faster sharing speeds for anyone with the relevant decoder. The effectiveness of this over traditional compression methods is largely dependent on the use case.</p></li>
-<li><p>Image Reconstruction and Noise Reduction: From eliminating graininess and watermarks in images to advanced models for anomaly detection and generative modeling, autoencoders have found numerous applications.</p></li>
+<li><p>Image Reconstruction and Noise Reduction: From eliminating graininess or watermarks in images to advanced models for anomaly detection and generative modeling, autoencoders have found numerous applications.</p></li>
 <li><p>Generative Modeling: Autoencoders play a critical role in generating new data, such as novel images or audio. An example can be seen in <a href="https://arxiv.org/pdf/2112.10752.pdf">Latent Diffusion Models</a> that generate images based on text prompts or deepfakes where a person’s face is generated by the model. <a href="https://en.wikipedia.org/wiki/Variational_autoencoder">Variational Autoencoders</a>, a more complex variant of autoencoders, are often employed in such advanced applications, something we will explore in future posts.</p></li>
 </ul>
 <div class="quarto-layout-panel">
@@ -276,17 +276,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="running-example-setup" class="level2">
-<h2 class="anchored" data-anchor-id="running-example-setup">Running Example setup</h2>
-<p>Throughout this blog post, we will use a basic autoencoder model as an example. It compresses and reconstructs images from the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset</a>.</p>
-<p>The MNIST dataset (<a href="#fig-mnist_examples">Figure&nbsp;2</a>) consists of 28x28 pixel, black and white images of handwritten digits from 0 to 9. The pixel values range from 0-1 where 1=white, 0=black and any shade of grey will be a value between the two.</p>
+<section id="an-autoencoder-example" class="level2">
+<h2 class="anchored" data-anchor-id="an-autoencoder-example">An Autoencoder Example</h2>
+<p>Throughout this blog post, we will use a basic autoencoder model as an example. The goal is to use this example throughout the blog post as an anchor to which we can attach new concepts as we learn them.</p>
+<p>This particular autoencoder can compresses and reconstruct images from the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset</a> (<a href="#fig-mnist_examples">Figure&nbsp;2</a>) which consists of 28x28 pixel, black and white images of handwritten digits from 0 to 9. The pixel values range from 0-1 where 1=white, 0=black (though it doesn’t matter which way round you represent the colours) and any shade of grey will be a value between the two.</p>
 <div id="fig-mnist_examples" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="../media/images/mnist_examples.png" class="img-fluid figure-img"></p>
 <p></p><figcaption class="figure-caption">Figure&nbsp;2: Images from the MNIST dataset</figcaption><p></p>
 </figure>
 </div>
-<p>The goal is to use this example throughout the blog post as an anchor to which we can attach new concepts to as we learn them.</p>
 <p><a href="#fig-mnist_reconstruction_example">Figure&nbsp;3</a> shows a handwritten digit that was reconstructed by the autoencoder model we will be using. The reconstruction is (purposefully) not perfect to highlight that it is a reconstruction.</p>
 <div id="fig-mnist_reconstruction_example" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
@@ -294,75 +293,70 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p></p><figcaption class="figure-caption">Figure&nbsp;3: MNIST image reconstruction</figcaption><p></p>
 </figure>
 </div>
+<p>Now that we’ve set up our example, let’s explore the first concept: data compression.</p>
 </section>
 <section id="data-compression-retaining-the-core-information" class="level2">
 <h2 class="anchored" data-anchor-id="data-compression-retaining-the-core-information">Data compression: Retaining the Core Information</h2>
+<p>To fully comprehend autoencoders, it is helpful to grasp the concept of data compression. The goal of a compression algorithm is to reduce the size of data with minimal loss of information.</p>
+<p>The first clarification to make on compression is the following: compression of data means removing data. It is the only way to reduce the size of a file. The skill is in deciding what data to remove such that it is easy to add it back in when you decompress the data.</p>
 <section id="a-compression-analogy" class="level3">
 <h3 class="anchored" data-anchor-id="a-compression-analogy">A compression analogy</h3>
-<p>To fully comprehend autoencoders, it is helpful to grasp the concept of data compression. The goal of a compression algorithm is to reduce the size of some given data.</p>
-<p>The first clarification to make on compression is the following: compression of data means removing data. It is the only way to reduce the size of a file. The skill is in deciding what data to remove such that it is easy to add it back in when you decompress the data.</p>
-<p>There are 2 important ideas to compression:</p>
-<ol type="1">
-<li>The algorithms that encode and decode the data</li>
-<li>The form that the data takes when it is encoded</li>
-</ol>
-<p>Here’s an example:</p>
 <p>Imagine you are with a friend and you are tasked with manually copying strings of data from one piece of paper to another. The strings of data look like this:</p>
 <pre><code>AAARRBBBBMMMMMMMPPPEYYYYYBBBBBBBUUIIIIIIIII
 WWWAAAAAAAAAAATTTTNQQQQQQUJJNNNNNNRRRRRRRRR
 UUKLLLLLLLLFGHSSSSSSZZZZZZZZZZZZZZZZGGGGGGG
 ...
 etc.</code></pre>
-<p>There are a lot of strings to copy so want to be efficient in this process. You decide for find a quicker way of passing the information to each other.</p>
-<p>You assign different roles to each other: your friend will read the strings and you will write them down. As the reader, your friend decides to use an algorithm in order to shorten the amount of data they need to pass to you. We count the number of times a letter repeats and write down that number followed by the letter.</p>
+<p>There are a lot of strings to copy so you want to be efficient in this process. You decide for find a quicker way of passing the information to each other.</p>
+<p>You assign yourselves different roles: your friend will read the strings and you will write them down. As the reader, your friend decides to use an algorithm in order to shorten the amount of data they need to pass to you. They count the number of times each letter repeats and pass you that number along with the corresponding letter.</p>
 <p>For example:</p>
 <pre><code>AAARRBBBBMMMMMMMPPPEYYYYYBBBBBBBUUIIIIIIIII</code></pre>
 <p>becomes</p>
 <pre><code>3A2R4B7M3P1E5Y7B2U9I</code></pre>
-<p>What your friend is doing is “encoding” the strings of data. This particular encoding is compressing the data into a smaller form in a way that it can be perfectly reproduced - this is called “lossless” compression. Your friend is acting as an “Encoder”.</p>
+<p>What your friend is doing is “encoding” the strings of data. This particular encoding is compressing the data into a smaller form in a way that it can be perfectly reproduced - this is called “lossless” compression. Your friend is acting as an “Encoder” (sidenote: when a reconstruction is not perfect, we call this “lossy” compression. The <code>jpeg</code> file format for images is an example of a lossy compressed format. It makes the image size smaller but loses some image quality).</p>
 <p>Your role is to “decode” the information back into it’s original form. You are a “Decoder”. All you need to do is know the algorithm your friend used to encode that data and do the reverse.</p>
-<p>While this is a straightforward example, why this works generalises to any situation. We can afford to reduce the amount of data because we found a more efficient way to express the same information with fewer bits (using only one number followed by one letter). There tend to be repeating sequences letters that don’t need to be repeated.</p>
-<p>insert image of tranfer of infor from data to algorithm?</p>
-<p>How did we find this encoding-decoding technique? As humans, we have a lot of pre-existing knowledge and can spot simple patterns like this which we can use to design our algorithms. We can tell it would be more efficient to use a single letter and number If the sequence had been single letter sequences (eg <code>AEJGOSKA</code>), we know that this method would have been less efficient as we would need twice as much information (<code>1A1E1J1G1O1S1K1A</code>).</p>
-<p>To compress and decompress data, the algorithm must possess an adequate understanding of the rules of redundancy in the given data.</p>
-<p>In most real-world scenarios, there is significantly more data involved, and the relationships are not as easily discernible by a human, leading to more complex algorithms with more intricate pre-existing knowledge.</p>
-<p>Earlier, we mentioned “lossless” compression. When the reconstruction is not perfect, we call this “lossy” compression. The <code>jpeg</code> file format for images is an example of a lossy compressed format. It makes the image size smaller at the detrement of losing some image quality.</p>
-<p>While this example used letters as the from of the data, given all things on computers are numbers, compression will work with anything; images, audio, video, text etc.</p>
+<p>While this is a straightforward example, why this works generalises to any situation. We can afford to reduce the amount of bits of data because we found a more efficient way to express the same information with fewer bits (using only one number followed by one letter per repeating sequence). The observation we made was that letters tend to repeat themselves, and we can take advantage of that.</p>
+<p>To compress and decompress data, the algorithm must possess an adequate understanding of the rules of redundancy in the given data. As humans, we have a lot of pre-existing knowledge and can spot simple patterns this which we can use to design our algorithms. We can tell it would be more efficient to use a single letter and number. If the sequence had been single letter sequences (eg <code>AEJGOSKA</code>), we know that this method would have been less efficient as we would need twice as much information (<code>1A1E1J1G1O1S1K1A</code>).</p>
+<p>This example used letters for the data type but given all things on computers are numbers, compression will work with anything; images, audio, video, text etc.</p>
+<p>In most real-world scenarios, there is significantly more data involved, and the relationships are not as easily discernible by a human, leading to more complex algorithms with more intricate pre-existing knowledge. We either need a smart human or a computer to figure out the algorithm for us (this is where autoencoders come in).</p>
 </section>
 <section id="autoencoder-compression-with-mnist-example" class="level3">
 <h3 class="anchored" data-anchor-id="autoencoder-compression-with-mnist-example">Autoencoder Compression with MNIST example</h3>
 <p>Autoencoders work differently than general compression algorithms:</p>
 <ul>
-<li>The algorithm is not designed by humans: autoencoders are neural networks, and the compression and decompression algorithm is developed by the network itself. While humans do have some input in determining hpw far to reduce the dimensionality of the data, the network must figure out how to make that work. This is where the “auto” in “autoencoder” comes from.</li>
+<li>The algorithm is not designed by humans: autoencoders are neural networks, and the compression and decompression algorithm is developed by the network itself. While humans do have some input in determining far to compress the data, the autoencoder must figure out how to make that work. This is where the “auto” in “autoencoder” comes from.</li>
 <li>The algorithm is task-specific: autoencoders are trained on specific data and learn to compress data that is similar in nature. They can excel at compressing particular types of data, but they do not generalize beyond the data provided. If they are only fed images of cars, they won’t compress images of flowers effectively. However, if given both images of cars and flowers, they could handle both.</li>
 </ul>
-<p>Let’s look at the architechture of our image autoencoder (<strong>?@fig-autoencoder_schema_example</strong>). Notice there are 2 parts: an encoder at the input that compresses data <code>X</code> into <code>h</code> and a decoder at the output that attempts to reconstruct <code>X</code> using only <code>h</code> to produce <code>X'</code>. Both the encoder and decoder overlap in the middle - this middle layer is the the output of the encoder and contains the compressed form of the original image.</p>
-<p><img src="../media/images/Autoencoder_schema_with_example_2d_latent.png" id="fig-autoencoder_schema_example" class="img-fluid" width="450"></p>
-<p>Our specific autoencoder has been designed to compress any 28x28 pixel image into 2 values (<a href="#fig-compressed_image_form">Figure&nbsp;4</a>). This means we are going from <code>28x28=784</code> values down to 2, so this is a significant reduction. Notice how we have a negative value for one of the pixels - these numbers longer represent pixel values in the same way.</p>
+<p>Let’s have another look at the architechture of our image autoencoder (<a href="#fig-autoencoder_schema_example">Figure&nbsp;4</a>). Notice there are 2 parts: an encoder at the input that compresses data <code>X</code> (the image) into <code>h</code>, the middle layer (a compressed form of <code>X</code>), and a decoder at the output that attempts to reconstruct <code>X</code> using only <code>h</code> to produce <code>X'</code>.</p>
+<div id="fig-autoencoder_schema_example" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="../media/images/Autoencoder_schema_with_example_2d_latent.png" class="img-fluid figure-img" width="450"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4: Autoencoder Schema with example data</figcaption><p></p>
+</figure>
+</div>
+<p>Our specific autoencoder has been designed to compress any 28x28 pixel image into 2 values (<a href="#fig-compressed_image_form">Figure&nbsp;5</a>). This means we are going from <code>28x28=784</code> values down to 2, so this is a significant reduction. Notice how we have a negative value for one of the pixels - these numbers longer represent pixel values in the same way. We say that the compressed form of the image is 2-dimensional.</p>
 <div id="fig-compressed_image_form" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="../media/images/2d_latent_compressed_form.png" class="img-fluid figure-img"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;4: Example compressed image to only 2 values</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5: Example compressed image to only 2 values</figcaption><p></p>
 </figure>
 </div>
-<p>We say that the compressed form of the image is 2-dimensional.</p>
 </section>
 </section>
 <section id="compression-is-dimensionality-reduction" class="level2">
 <h2 class="anchored" data-anchor-id="compression-is-dimensionality-reduction">Compression is dimensionality reduction</h2>
-<p>What does it mean for the compressed representations to be lower-dimensional?</p>
-<p>All this means is we reduce the number of categories (or features) of our data. In the case of an image, it means fewer pixel values.</p>
-<p>The MNIST images (<a href="#fig-mnist_examples">Figure&nbsp;2</a>) are visualised in a 28x28 pixel grid. If we flatten out the image, we have <code>28x28=784</code> features, as each pixel is required to draw the digit. 784 pixels can be thought of as the dimension size of the data. The first dimension represents the pixel value in the top left corner, 784th pixel represents the bottom right most pixel.</p>
-<p><a href="#fig-orig_v_flattened">Figure&nbsp;5</a> shows a 50 pixel section of a flattened out MNIST image. The highlighted purple pixels are there to reference pixel position between the unflattened and flattend images.</p>
-<p>When the pixels are plotted, they are treated independently of each other. We go through each value, one by one and assign the correct colour to that value regardless of the values of other pixels. However, in any image, pixels are not independent of each other. We would not be able to compare two different hand written digits of a “4” and know they represented the same number. The only cases where the pixels are independent is in the case of random noise. This dependence between pixels is the property we exploit to reduce the dimensionality of the image.</p>
+<p>Autoencoders have uses beyond just compression, but compression is integral to any autoencoder task. In essence, compression functions as a form of dimensionality reduction, simplifying the data by decreasing the number of its features or categories.</p>
+<p>To explain further, dimensionality reduction simply means that we decrease the number of categories (or features) in our data. For instance, when dealing with an image, this corresponds to a reduction in pixel values. Consider the MNIST images, which are visualized on a grid of 28x28 pixels (<a href="#fig-mnist_examples">Figure&nbsp;2</a>). When we “flatten” the image, we end up with 28x28=784 features, each pixel being a feature required to compose the digit.</p>
+<p>This number of pixels – 784 – can be thought of as the dimension size of the data. Here, the first dimension corresponds to the pixel value in the top left corner, while the 784th pixel represents the bottom rightmost pixel. <a href="#fig-orig_v_flattened">Figure&nbsp;6</a> provides a visual representation of a 50-pixel section from a “flattened” MNIST image, with purple pixels highlighting the corresponding positions between the unflattened and flattened images.</p>
+<p>When pixels are rendered as an image, they are treated independently; we assign color to each pixel based on its value, irrespective of other pixels. However, the pixels within an image are not truly independent - if they were, we wouldn’t recognize the image. Two hand-drawn “4”s, despite their differences, can still be recognized as the same number. This interdependence of pixels, seen in all but random noise, is precisely the property we leverage to reduce an image’s dimensionality.</p>
 <div id="fig-orig_v_flattened" class="quarto-layout-panel">
 <figure class="figure">
 <div class="quarto-layout-row quarto-layout-valign-bottom">
-<div class="quarto-layout-cell" style="flex-basis: 60.0%;justify-content: center;">
+<div class="quarto-layout-cell" style="flex-basis: 66.7%;justify-content: center;">
 <p><img src="../media/images/linear_autoencoder_reconstruction_2d_latent_orig.jpg" class="img-fluid figure-img" alt="Alt text"> <img src="../media/images/linear_autoencoder_orig_2d_latent_flat.png" height="400" alt="Alt text" class="figure-img"></p>
 </div>
 </div>
-<p></p><figcaption class="figure-caption">Figure&nbsp;5: <strong>?(caption)</strong></figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;6: <strong>?(caption)</strong></figcaption><p></p>
 </figure>
 </div>
 <p>Let’s examine the code that defines our autoencoder’s architechture to understand how it reduces the dimensionality of the data. The code below uses the <a href="https://pytorch.org">Pytorch</a> library to define the model layers.</p>
@@ -390,14 +384,21 @@ etc.</code></pre>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>         )</span></code></pre></div>
 <p>This architecture follows the same basic design as <a href="#fig-autoencoder_schema">Figure&nbsp;1</a> shows. The encoder part of the model (<code>self.encoder</code>) reduces the data’s dimension through these linear layers, little by little: <code>28*28 -&gt; 128 -&gt; 64 -&gt; 32 -&gt; 2</code>. The compressed representation ends up being 2 pixels wide (2-dimensional) after the final <code>Linear</code> function <code>Linear(32, 2)</code>.</p>
 <p>The decoder (<code>self.decoder</code>) defines the same process as the encoder, but in reverse: linear layers go from smallest dimension (the middle layer) back to the original dimension of the image: 2 -&gt; 32 -&gt; 64 -&gt; 128 -&gt; 28*28. This is where the image reconstruction happens.</p>
-<p>How is 2 pixels worth of information enough to reconstruct an image back to 784 pixels? First, the two values we are left with are not longer independent, meaning any combination of values means more than just Second, the reconstruction is lossy, so we are allowing for errors in the reconstruction to allow for a smaller size compressed image. Third and most importantly, the “prior experience” contains a lot of the information needed for the reconstruction. It is held in the model’s weights. The combination of the functions used to reduce the dimensionality of the data and their weights define a the new lower dimensional space - it is called the <strong>latent space</strong>.</p>
+<p>How is 2 pixels worth of information enough to reconstruct an image back to 784 pixels?</p>
+<ul>
+<li>Consider the obvious redundant information in the image - there’s a lot of empty space around the digits.</li>
+<li>Digits have repeating shapes such as loops and lines. If the autoencoder knows the image it is trying to construct consists of two loops, it’s probably an 8 - that already a lot of information.</li>
+<li>The two values we are left with are not just pixel values like in the original image, they are interdependent. A change in the values in one dimension will affect the values in the other.</li>
+<li>The reconstruction is lossy, so we are allowing for errors in the reconstruction to allow for a smaller size compressed image.</li>
+</ul>
+<p>Most importantly, the “prior experience” contains a lot of the information needed for the reconstruction. It is held in the model’s weights. The model weights define what is know as the <strong>latent space</strong>, these are the combination of functions (in our example, the <code>Linear()</code> functions) and their parameters that create the 2-dimensional space.</p>
+<p>Crucially, the “prior knowledge” encapsulated within the model’s weights carries a significant portion of the information necessary for the reconstruction process. These weights lay out the structure of the latent space. This space is a mesh of functions (for instance, the <code>Linear()</code> functions in our example make up much of this mesh) and their specific parameters to produce the two-dimensional representation.</p>
 </section>
 <section id="understanding-latent-spaces" class="level2">
 <h2 class="anchored" data-anchor-id="understanding-latent-spaces">Understanding Latent spaces</h2>
-<p>If we can reconstruct the data from a compressed representation, then the important information must still exist in that lower dimensional state.</p>
-<p>The autoencoder must have learned something valuable about the “world” in which the data lives and stored that knowledge within the weights of the neural network that define the middle layer. That knowledge lies in what is known as the <strong>latent space</strong>.</p>
-<p>The term “latent” refers to something that is present but hidden. In this context, compressed representations consisting of fewer dimensions already exist, it is just not obvious from the point of view of the higher dimensional space how to find them.</p>
-<p>Consider the plot of random points in <a href="#fig-3d_random_points">Figure&nbsp;6</a>. To describe any single point, we need 3 pieces of information - the x coordinate, the y coordinate, and the z coordinate. If the data is random, there is no correlation between x, y, and z. In other words, changing x does not affect y or z and vice versa. We say the data spans a 3-dimensional space. There are no latent spaces.</p>
+<p>If it is possible to reconstruct the data from a lower dimensional representation, then the important information must still exist in that lower dimensional form. Something valuable must have been learned from the patterns in the data.</p>
+<p>The term “latent” refers to something that is present but hidden. In this context, lower-dimensional representations already exist, it is just not obvious how to find them.</p>
+<p>Consider the plot of random points in <a href="#fig-3d_random_points">Figure&nbsp;7</a>. To describe any single point, we need 3 pieces of information - the x coordinate, the y coordinate, and the z coordinate. If the data is random, there is no correlation between x, y, and z. In other words, changing x does not affect y or z and vice versa. We say the data spans a 3-dimensional space. There are no latent spaces.</p>
 <div class="cell" data-execution_count="2">
 <details>
 <summary>Code</summary>
@@ -442,7 +443,7 @@ etc.</code></pre>
 <div id="fig-3d_random_points" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="2023-05-10-autoencodersv2_files/figure-html/fig-3d_random_points-output-1.png" width="463" height="463" class="figure-img"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;6: 3D plot of random points</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;7: 3D plot of random points</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -456,7 +457,7 @@ etc.</code></pre>
 <p>The data would no longer be random. There are relationships between age,height, and weight. Additionally, some combinations of age, height and weight never occur in reality. You’ll be hard-pressed to find a 300 kg 4-year-old measuring 50 cm tall. So, if we have good sources of data, the model will also tend to believe such combinations are not possible. There are underlying physiological rules defining the relationship. Those rules define a latent space.</p>
 <p>Conversely, given two of these values, we can make an approximate guess at the third. If we can do that, then there likely exists a smaller dimensional space in which our data also resides, one that does not require all the features. If done correctly, it might only take 1 or 2 coordinates to describe any human by these traits.</p>
 <p>The goal is to discover a structure that serves as our new coordinate system, allowing navigation with just two coordinates. Autoencoders, particularly the encoder portion, accomplish this by seeking a lower-dimensional latent space. The autoencoder’s middle layer asserts the existence of a latent space of size <span class="math inline">\(w\)</span> and compels the network to find such a representation. Lacking this constraint, the middle layer would remain in its original high-dimensional space, merely copying the input and functioning as an identity transformation (multiplying everything by 1).</p>
-<p><a href="#fig-height_weight_age">Figure&nbsp;7</a> demonstrates that the majority of points lie on or near a 2D latent space. By projecting these points onto the blue grid as close to their original positions as possible, we can create a 2-dimensional visualization. What the axes represent is no longer as simple as height, weight or age, but some combination of all of them. Due to this projection, the points won’t precisely match their original locations, but they will be close. This process is analogous to the slightly blurred, imperfect image reconstruction from earlier on.</p>
+<p><a href="#fig-height_weight_age">Figure&nbsp;8</a> demonstrates that the majority of points lie on or near a 2D latent space. By projecting these points onto the blue grid as close to their original positions as possible, we can create a 2-dimensional visualization. What the axes represent is no longer as simple as height, weight or age, but some combination of all of them. Due to this projection, the points won’t precisely match their original locations, but they will be close. This process is analogous to the slightly blurred, imperfect image reconstruction from earlier on.</p>
 <div>
 <details>
 <summary>Code</summary>
@@ -539,7 +540,7 @@ etc.</code></pre>
 <div class="cell-output cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
 <div id="fig-height_weight_age-1" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
-<p><img src="2023-05-10-autoencodersv2_files/figure-html/fig-height_weight_age-output-1.png" class="img-fluid figure-img" data-ref-parent="fig-height_weight_age" width="396"></p>
+<p><img src="2023-05-10-autoencodersv2_files/figure-html/fig-height_weight_age-output-1.png" class="img-fluid figure-img" data-ref-parent="fig-height_weight_age" width="397"></p>
 <p></p><figcaption class="figure-caption">(a) Height vs Weight vs Age with Latent Space Overlay</figcaption><p></p>
 </figure>
 </div>
@@ -553,7 +554,7 @@ etc.</code></pre>
 </div>
 </div>
 </div>
-<p></p><figcaption class="figure-caption">Figure&nbsp;7: Visualisation of a Latent Space for height, weight and age in a population</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;8: Visualisation of a Latent Space for height, weight and age in a population</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -561,15 +562,15 @@ etc.</code></pre>
 </section>
 <section id="dimensionality-reduction-reveals-latent-spaces" class="level2">
 <h2 class="anchored" data-anchor-id="dimensionality-reduction-reveals-latent-spaces">Dimensionality reduction reveals latent spaces</h2>
-<p>When data is cleverly compressed, the reduced dimension space is a latent space and autoencoders can find these latent spaces for us.</p>
-<p>When an image is processed through our autoencoder model we can halt the process when it reaches the middle layer to obtain the 2-dimensional latent space representation of the image. Given there are only 2 dimensions, we end up with 2 coordinates.</p>
+<p>When data is cleverly compressed, the reduced dimension space is a latent space, and autoencoders can find these latent spaces for us.</p>
+<p>Consider an image passed through our autoencoder model. We can interrupt the processing when it arrives at the middle layer, this allows us to capture the 2-dimensional latent representation of the image. In essence, each image becomes represented by just two coordinates within this latent space.</p>
 <div id="fig-autoencoder_sliced" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="../media/images/Autoencoder_schema_with_example_2d_latent_sliced.png" class="img-fluid figure-img" width="450"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;8: Autoencoder Diagram with Decoder Removed</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;9: Autoencoder Diagram with Decoder Removed</figcaption><p></p>
 </figure>
 </div>
-<p>After running multiple images through the encoder, we can visualise the latent space by plotting the 2D coordinates of these images (<a href="#fig-tsne_mnist">Figure&nbsp;9</a>). This is the same idea as when we projected the age, height, width data onto a 2D latent space in <a href="#fig-height_weight_age">Figure&nbsp;7</a>. It gives us an idea of what the latent space looks like, like sprinkling dust (i.e.&nbsp;the images) on an invisible landscape to see the topology.</p>
+<p>By processing multiple images through our autoencoder, we’re left with a set of 2D coordinates, each representing an individual image. Visualizing these coordinates within the latent space (as seen in <a href="#fig-tsne_mnist">Figure&nbsp;10</a>) unveils the underlying structure of our data. This process is akin to revealing the topography of an invisible landscape by sprinkling dust - each dust particle representing an image - and observing the surface that is created.</p>
 <div class="cell" data-execution_count="4">
 <details>
 <summary>Code</summary>
@@ -734,10 +735,10 @@ etc.</code></pre>
 <div id="fig-tsne_mnist" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="../media/images/mnist_2D_rep.png" class="img-fluid figure-img" width="450"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;9: 2D Representation of latent dimension with original data projected onto it (source: Open code cell above for the code used to create this plot)</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;10: 2D Representation of latent dimension with original data projected onto it (source: Open code cell above for the code used to create this plot)</figcaption><p></p>
 </figure>
 </div>
-<p>Observe how similar-looking digits cluster together, signifying that the model’s middle layer can discern the resemblance between different digits.</p>
+<p>A noteworthy observation is how similar digits cluster together in the visualized latent space. This demonstrates the model’s ability to discern patterns and similarities between different digits within its middle layer.</p>
 </section>
 <section id="revealing-latent-space-autoencoder" class="level2">
 <h2 class="anchored" data-anchor-id="revealing-latent-space-autoencoder">Revealing latent space = autoencoder</h2>
